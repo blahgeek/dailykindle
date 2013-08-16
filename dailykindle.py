@@ -8,8 +8,9 @@ import logging
 
 templates_env = Environment(loader=PackageLoader('dailykindle', 'templates'))
 
-remove_attributes = ['class', 'id', 'title', 'style', 'width', 'height', 'onclick']
-remove_tags = ['script', 'object', 'video', 'embed', 'iframe', 'noscript', 'style', 'img']
+remove_attributes = ('class', 'id', 'title', 'style', 'width', 'height', 'onclick')
+remove_tags = ('script', 'object', 'video', 'embed', 'iframe', 'noscript', 'style', 'img')
+template_files = ('toc.ncx', 'content.opf', 'content.html')
 
 def build(feeds_urls, output_dir, max_old=timedelta.max):
 
@@ -45,7 +46,7 @@ def build(feeds_urls, output_dir, max_old=timedelta.max):
             entry.content = content.decode('utf8')
 
     logging.info('Generating templates...')
-    for template_name in ('toc.ncx', 'content.opf', 'content.html'):
+    for template_name in template_files:
         template = templates_env.get_template(template_name)
         with open(path.join(output_dir, template_name), "w") as f:
             f.write(template.render(date=date.today().isoformat(), feeds=feeds))
@@ -58,8 +59,11 @@ def mobi(input_file, exec_path):
 
 if __name__ == "__main__":
     from config import *
+    from shutil import move
 
     logging.basicConfig(filename=path.join(ROOT, 'main.log'), level='INFO', 
                         format='%(asctime)s [%(levelname)s] %(message)s')
     build(FEEDS_URL, OUTPUTDIR, MAXOLD)
     mobi(path.join(OUTPUTDIR, 'content.opf'), KINDLEGEN)
+    move(path.join(OUTPUTDIR, 'content.mobi'), 
+            path.join(OUTPUTDIR, 'content-%s.mobi' % date.today().isoformat()))
