@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, timedelta, date
-from os import system
+import subprocess
 import feedparser
 from jinja2 import Environment, PackageLoader
 from bs4 import BeautifulSoup
@@ -55,7 +55,11 @@ def build(feeds_urls, output_dir, max_old=timedelta.max):
 def mobi(input_file, exec_path):
     """Execute the KindleGen binary to create a MOBI file."""
     logging.info("Running %s %s" % (exec_path, input_file))
-    system("%s %s" % (exec_path, input_file))
+    s = subprocess.Popen([exec_path, input_file], stdout=subprocess.PIPE)
+    while True:
+        out = s.stdout.readline().decode('utf8')
+        if not out: break;
+        logging.info(out.strip())
 
 if __name__ == "__main__":
     from config import *
@@ -65,5 +69,3 @@ if __name__ == "__main__":
                         format='%(asctime)s [%(levelname)s] %(message)s')
     build(FEEDS_URL, OUTPUTDIR, MAXOLD)
     mobi(path.join(OUTPUTDIR, 'content.opf'), KINDLEGEN)
-    move(path.join(OUTPUTDIR, 'content.mobi'), 
-            path.join(OUTPUTDIR, 'content-%s.mobi' % date.today().isoformat()))
