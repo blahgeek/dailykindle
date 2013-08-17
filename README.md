@@ -1,49 +1,17 @@
 # DailyKindle
 
-DailyKindle is a Python scripts which, given a set of RSS/Atom feeds URLs,
-creates a MOBI file that you can directly use on you Amazon Kindle (or any other
-device that supports MOBI documents).
+将RSS生成Kindle上阅读的.mobi文件，不支持图片。
 
-Want to see what it looks like? Take a look at `examples/mobi_doc/`!
+GitHub上有另外一个项目叫[kindlereader](https://github.com/williamgateszhao/kindlereader), 
+干的事情基本相同，不过代码太复杂以及不优美，于是fork了这个项目并且做了很多修改，很简单。
 
+## 使用
 
-## Requirements
+安装[Amazon's KindleGen](http://www.amazon.com/gp/feature.html?docId=1000234621)，在`config.py`中填写配置，运行(python3)。
 
-* A working Python 3 environment (tested on OS X + Python 3.2 + Virtualenv).
-* [Amazon's KindleGen](http://www.amazon.com/gp/feature.html?docId=1000234621)
-  binary.
+## Crontab Example
 
-## Installation
-
-1. Grab the script code. Choose one of the following:
-   * [https://bitbucket.org/pelletier/dailykindle/get/tip.zip](https://bitbucket.org/pelletier/dailykindle/get/tip.zip)
-   * [https://github.com/pelletier/dailykindle/zipball/master](https://github.com/pelletier/dailykindle/zipball/master)
-   * `hg clone https://bitbucket.org/pelletier/dailykindle`
-   * `git clone git://github.com/pelletier/dailykindle.git`
-2. (optional) Source your virtualenv.
-3. `pip install -r requirements.txt`
-
-## Usage
-
-    DailyKindle usage:
-    python dailykindle.py <output dir> <day|week> <kindle_gen> <feed_url_1>
-    [<feed_url_2> ...]
-
-Passing `day` will only keep posts younger than one day; `week` for one week.
-
-This will create a `daily.mobi` in `<output dir>`. You can now transfer this
-file to your device.
-
-## Example
-
-    python dailykindle.py ~/Desktop/temp/ day \
-    "~/Downloads/KindleGen_Mac_i386_v1.2/kindleGen" \
-    "http://feeds.feedburner.com/b-list-entries" \
-    "http://lucumr.pocoo.org/feed.atom"
-
-## Want more?
-
-Run the script as a cron job: see `/examples/cronjob/`.
+`50 7 * * * LANG=en_US.UTF-8 timeout 120 python /path/to/dailykindle.py`
 
 ## License
 
