@@ -23,3 +23,4 @@ MAXOLD = timedelta(days=1)
 
 ROOT = path.dirname(path.abspath(__file__))
 OUTPUTDIR = path.join(ROOT, 'output')
+TEMPLATEDIR = path.join(ROOT, 'templates')

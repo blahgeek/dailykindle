@@ -2,11 +2,12 @@ import time
 from datetime import datetime, timedelta, date
 import subprocess
 import feedparser
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, FileSystemLoader
 from bs4 import BeautifulSoup
 import logging
+from config import *
 
-templates_env = Environment(loader=PackageLoader('dailykindle', 'templates'))
+templates_env = Environment(loader=FileSystemLoader(TEMPLATEDIR))
 
 remove_attributes = ('class', 'id', 'title', 'style', 'width', 'height', 'onclick')
 remove_tags = ('script', 'object', 'video', 'embed', 'iframe', 'noscript', 'style', 'img')
@@ -62,10 +63,13 @@ def mobi(input_file, exec_path):
         logging.info(out.strip())
 
 if __name__ == "__main__":
-    from config import *
     from shutil import move
 
     logging.basicConfig(filename=path.join(ROOT, 'main.log'), level='INFO', 
                         format='%(asctime)s [%(levelname)s] %(message)s')
-    build(FEEDS_URL, OUTPUTDIR, MAXOLD)
-    mobi(path.join(OUTPUTDIR, 'content.opf'), KINDLEGEN)
+    try:
+        build(FEEDS_URL, OUTPUTDIR, MAXOLD)
+        mobi(path.join(OUTPUTDIR, 'content.opf'), KINDLEGEN)
+    except:
+        logging.exception('Got exception on main:')
+        raise
