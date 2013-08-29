@@ -18,8 +18,8 @@ def build(feeds_urls, output_dir, max_old=timedelta.max):
 
     socket.setdefaulttimeout(15)
     logging.info('Starting...')
-    feeds = map(lambda x: feedparser.parse(x), feeds_urls)
-    feeds = filter(lambda x: x.feed.has_key('title'), feeds)
+    feeds = [feedparser.parse(x) for x in feeds_urls]
+    feeds = [x for x in feeds if x.feed.has_key('title')]
 
     for feed in feeds:
         logging.info('Handling ' + feed.feed.title)
@@ -31,6 +31,7 @@ def build(feeds_urls, output_dir, max_old=timedelta.max):
         mkstamp = lambda x: datetime.fromtimestamp(time.mktime(x))
         nowstamp = mkstamp(time.gmtime())
         feed.entries = filter(lambda x: nowstamp-mkstamp(x.date_parsed) <= max_old, feed.entries)
+        feed.entries = list(feed.entries)
 
         for entry_number, entry in enumerate(feed.entries):
             entry.description = BeautifulSoup(entry.description).text[:200].strip()
@@ -44,8 +45,9 @@ def build(feeds_urls, output_dir, max_old=timedelta.max):
             for x in content.findAll(remove_tags):
                 x.extract()
             entry.content = content.decode('utf8')
+        logging.info('Entries count: ' + str(len(feed.entries)))
 
-    feeds = filter(lambda x: len(x.entries) > 0, feeds)
+    feeds = [x for x in feeds if len(x.entries) > 0]
 
     for feed_number, feed in enumerate(feeds):
         feed.update({ 'number': feed_number + 1,

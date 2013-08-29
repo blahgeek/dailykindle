@@ -74,12 +74,12 @@
         {% for feed in feeds %}
         <mbp:pagebreak />
         <div id="sectionlist_{{ feed.number }}" class="section">
-            {% if feed_idx < feeds|length %}
+            {% if feed.number < feeds|length %}
             <a href="#sectionlist_{{ feed.number+1 }}">Next Feed</a> |
             {% endif %}
             
-            {% if feed_idx > 1 %}
-            <a href="#sectionlist_{{ feed.numer-1 }}">Previous Feed</a> |
+            {% if feed.number > 1 %}
+            <a href="#sectionlist_{{ feed.number-1 }}">Previous Feed</a> |
             {% endif %}
         
             <a href="#toc">TOC</a> |
