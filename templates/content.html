@@ -63,66 +63,52 @@
     <div id="toc">
         <h2>Feeds:</h2> 
         <ol> 
-            {% set feed_count = 0 %}
-            {% set feed_idx=0 %}
             {% for feed in feeds %}
-            {% set feed_idx=feed_idx+1 %}
-            {% if feed.entries|length > 0 %}
-            {% set feed_count = feed_count + 1 %}
             <li>
-              <a href="#sectionlist_{{ feed_idx }}">{{ feed.title }}</a><br/>
+              <a href="#sectionlist_{{ feed.number }}">{{ feed.title }}</a><br/>
               {{ feed.entries|length }} items
             </li>
-            {% endif %}
             {% endfor %}
         </ol> 
         
-        {% set feed_idx=0 %}
         {% for feed in feeds %}
-        {% set feed_idx=feed_idx+1 %}
-        {% if feed.entries|length > 0 %}
         <mbp:pagebreak />
-        <div id="sectionlist_{{ feed_idx }}" class="section">
-            {% if feed_idx < feed_count %}
-            <a href="#sectionlist_{{ feed_idx+1 }}">Next Feed</a> |
+        <div id="sectionlist_{{ feed.number }}" class="section">
+            {% if feed_idx < feeds|length %}
+            <a href="#sectionlist_{{ feed.number+1 }}">Next Feed</a> |
             {% endif %}
             
             {% if feed_idx > 1 %}
-            <a href="#sectionlist_{{ feed_idx-1 }}">Previous Feed</a> |
+            <a href="#sectionlist_{{ feed.numer-1 }}">Previous Feed</a> |
             {% endif %}
         
             <a href="#toc">TOC</a> |
-            {{ feed_idx }}/{{ feed_count }} |
+            {{ feed.number }}/{{ feeds|length }} |
             {{ feed.entries|length }} items
             <br />
             <h3>{{ feed.title }}</h3>
             <ol>
                 {% for item in feed.entries %}
                 <li>
-                  <a href="#article_{{ feed_idx }}_{{ item.number }}">{{ item.title }}</a><br/>
+                  <a href="#article_{{ feed.number }}_{{ item.number }}">{{ item.title }}</a><br/>
                 </li>
                 {% endfor %}
             </ol>
         </div>
-        {% endif %}
         {% endfor %}
     </div>
     <mbp:pagebreak />
     <div id="content">
-        {% set feed_idx=0 %}
         {% for feed in feeds %}
-        {% set feed_idx=feed_idx+1 %}
-        {% if feed.entries|length > 0 %}
-        <div id="section_{{ feed_idx }}" class="section">
+        <div id="section_{{ feed.number }}" class="section">
         {% for item in feed.entries %}
-        <div id="article_{{ feed_idx }}_{{ item.number }}" class="article">
+        <div id="article_{{ feed.number }}_{{ item.number }}" class="article">
             <h2 class="do_article_title">{{ item.title }}</h2>
             {{ feed.title }} <br />
             <div>{{ item.content }}</div>
         </div>
         {% endfor %}
         </div>
-        {% endif %}
         {% endfor %}
     </div>
 </body>

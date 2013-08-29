@@ -11,23 +11,19 @@
     <navPoint class="periodical">
         <navLabel><text>DailyKindle {{date}}</text></navLabel>
         <content src="content.html" />
-        {% set feed_idx=0 %}
         {% for feed in feeds %}
-        {% set feed_idx=feed_idx+1 %}
-        {% if feed.entries|length > 0 %}
-        <navPoint class="section" id="{{ feed_idx }}">
+        <navPoint class="section" id="{{ feed.number }}">
             <navLabel><text>{{ feed.title }}</text></navLabel>
-            <content src="content.html#section_{{ feed_idx }}" />
+            <content src="content.html#section_{{ feed.number }}" />
             {% for item in feed.entries %}
-            <navPoint class="article" id="{{ feed_idx }}_{{ item.number }}" playOrder="{{ item.number }}">
+            <navPoint class="article" id="{{ feed.number }}_{{ item.number }}" playOrder="{{ item.number }}">
               <navLabel><text>{{ item.title }}</text></navLabel>
-              <content src="content.html#article_{{ feed_idx }}_{{ item.number }}" />
+              <content src="content.html#article_{{ feed.number }}_{{ item.number }}" />
               <mbp:meta name="description">{{ item.description }}</mbp:meta>
               <mbp:meta name="author">{{ item.author }}</mbp:meta>
             </navPoint>
             {% endfor %}
         </navPoint>
-        {% endif %}
         {% endfor %}
     </navPoint>
 </navMap>

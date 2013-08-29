@@ -5,6 +5,7 @@ import feedparser
 from jinja2 import Environment, FileSystemLoader
 from bs4 import BeautifulSoup
 import logging
+import socket
 from config import *
 
 templates_env = Environment(loader=FileSystemLoader(TEMPLATEDIR))
@@ -15,29 +16,27 @@ template_files = ('toc.ncx', 'content.opf', 'content.html')
 
 def build(feeds_urls, output_dir, max_old=timedelta.max):
 
+    socket.setdefaulttimeout(15)
     logging.info('Starting...')
-    feeds = [feedparser.parse(feed_url) for feed_url in feeds_urls]
-    logging.info('Feed fetch complete')
+    feeds = map(lambda x: feedparser.parse(x), feeds_urls)
+    feeds = filter(lambda x: x.feed.has_key('title'), feeds)
 
-    for feed_number, feed in enumerate(feeds):
+    for feed in feeds:
         logging.info('Handling ' + feed.feed.title)
-        feed.update({ 'number': feed_number + 1,
-                      'title': feed.feed.title })
         for entry in feed.entries:
             entry.setdefault('author', 'Anonymous')
             entry.setdefault('date_parsed', entry.get('published_parsed', None))
 
-        feed.entries = [entry for entry in feed.entries if \
-                entry.date_parsed is not None and \
-                datetime.fromtimestamp(time.mktime(time.gmtime())) \
-                - datetime.fromtimestamp(time.mktime(entry.date_parsed)) <= max_old]
+        feed.entries = filter(lambda x: x.date_parsed is not None, feed.entries)
+        mkstamp = lambda x: datetime.fromtimestamp(time.mktime(x))
+        nowstamp = mkstamp(time.gmtime())
+        feed.entries = filter(lambda x: nowstamp-mkstamp(x.date_parsed) <= max_old, feed.entries)
 
         for entry_number, entry in enumerate(feed.entries):
             entry.description = BeautifulSoup(entry.description).text[:200].strip()
             entry.update({'number': entry_number + 1})
             try: entry.content = entry.content[0].value;
             except: entry.content = entry.summary;
-
             content = BeautifulSoup(entry.content)
             for attr in remove_attributes:
                 for x in content.findAll(attrs={attr:True}):
@@ -45,6 +44,12 @@ def build(feeds_urls, output_dir, max_old=timedelta.max):
             for x in content.findAll(remove_tags):
                 x.extract()
             entry.content = content.decode('utf8')
+
+    feeds = filter(lambda x: len(x.entries) > 0, feeds)
+
+    for feed_number, feed in enumerate(feeds):
+        feed.update({ 'number': feed_number + 1,
+                      'title': feed.feed.title })
 
     logging.info('Generating templates...')
     for template_name in template_files:
